@@ -1,0 +1,56 @@
+require("@nomicfoundation/hardhat-toolbox");
+
+// The next line is part of the sample project, you don't need it in your
+// project. It imports a Hardhat task definition, that can be used for
+// testing the frontend.
+// require("./tasks/faucet");
+
+const ALCHEMY_API_KEY = "";
+const GOERLI_PRIVATE_KEY = "";
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: {
+    version: "0.6.6",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
+  networks: {
+    hardhat: {
+      chainId: 1337 // We set 1337 to make interacting with MetaMask simpler
+    },
+    goerli: {
+      url: `https://goerli.infura.io/v3/${ALCHEMY_API_KEY}`,
+      chainId: 5,
+      allowUnlimitedContractSize: true,
+      accounts: [GOERLI_PRIVATE_KEY]
+    }
+  },
+  gasReporter: {
+    enabled: true,
+    showMethodSig: true,
+    maxMethodDiff: 1000,
+    currency: 'USD'
+  },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: false
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts"
+  },
+  abiExporter: {
+    path: './abi',
+    runOnCompile: true,
+    clear: true,
+    spacing: 2
+  }
+};
