@@ -1,6 +1,11 @@
 # uniswap-v2
 基于hardhat框架管理和发布uniswap v2
 
+## 目录说明
+etherscan：存放整合后的合约，etherscan网站验证合约需要
+frontend：前端代码
+haddhat：合约，基于hardhat框架
+
 ## 信息整理
 使用本项目，goerli测试网自行发布信息如下：
 1. [WETH9地址](https://goerli.etherscan.io/address/0xFe33eC9960E430608030e92860264B486Ae99Ef2) ：0xFe33eC9960E430608030e92860264B486Ae99Ef2
@@ -14,6 +19,19 @@
 
 ## 发布
 ```shell
-npm install
-npx hardhat --network goerli run scripts/deploy.js
+cd ./uniswap-v2/hardhat
+npm install --force
+
+# 1. 发布weth9合约
+npx hardhat --network goerli run scripts/deploy_1_weth9.js -h
+
+# 2. 发布工厂合约
+npx hardhat --network goerli run scripts/deploy_2_factory.js 
+
+# 3. 发布路由合约
+npx hardhat --network goerli run scripts/deploy_3_router.js
+
+# 4. 发布erc20合约
+npx hardhat --network goerli run scripts/deploy_4_erc20.js
 ```
+`注意：`发布2-4的合约时，需要传入相应参数，具体请参考我这篇文档：[uniswap-v2部署过程](http://www.wjblog.top/articles/3b89cd2c/)

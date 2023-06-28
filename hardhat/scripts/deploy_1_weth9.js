@@ -20,17 +20,12 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
-    //solidity version：0.5.16
-    await uniswapv2Factory();
-}
+    //solidity version：0.4.18
+    const WETH9 = await ethers.getContractFactory("WETH9");
+    const weth9 = await WETH9.deploy();
+    await weth9.deployed();
 
-//solidity version：0.5.16
-async function uniswapv2Factory(){
-    const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
-    const uniswapV2Factory = await UniswapV2Factory.deploy('0xE5e69B292170459a4e4CC77f94491681fF1f1636');
-    await uniswapV2Factory.deployed();
-
-    console.log("UniswapV2Factory address:", uniswapV2Factory.address);
+    console.log("WETH9 address:", weth9.address);
 }
 
 main()
