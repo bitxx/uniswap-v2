@@ -8,6 +8,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
     address public feeToSetter;
 
+    // creationCode 创建合约的字节码
     bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(UniswapV2Pair).creationCode));
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -42,6 +43,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         //直接调用汇编创建合约
         assembly {
+            //交易对的合约地址
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
         //初始化刚刚创建的合约

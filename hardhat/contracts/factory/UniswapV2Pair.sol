@@ -68,6 +68,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     //部署此合约时将msg.sender设置为factory，后续初始化时会用到这个值
     //在UniswapV2Factory.sol的createPair中调用过
+    // msg.sender 为factory合约地址
     constructor() public {
         factory = msg.sender;
     }
@@ -141,17 +142,19 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint amount1 = balance1.sub(_reserve1);   //4000
 
         //计算手续费
-        //首次铸币时，为了解决攻击漏洞，牺牲了首次铸币者的利益
+        //首次铸币时，为了解决攻击漏洞，牺牲了首次铸币者的利益，有1000lp被永久锁定
         bool feeOn = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
             //第一次铸币，也就是第一次注入流动性，值为根号k减去MINIMUM_LIQUIDITY，也就是说Math.sqrt(amount0.mul(amount1))一定要大于1000
             //这里 uint 使用 SafeMath，所以 sub() 操作会有溢出检查，也就是说首次铸币时总流动性大于 MINIMUM_LIQUIDITY (1000)，否则会 REVERT
+            // min是为了首次提高创建流行性的成本，也相当于收税，值为可以忽略不计的1000；
             liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);   //sub成负数的话，会报错   //1000
             //把MINIMUM_LIQUIDITY赋给地址0，永久锁住
            _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             //计算增量的token占总池子的比例，作为新铸币的数量
+            //如果不是首次创建流动性，而是后续陆续的添加，则按照token的新增数据占目前余额的比值，计算对应的新增流动性。注意这里是取最小值，所以LP 提供者一定要按照比例添加流动性，不然就亏了。
             liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
         }
         require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
