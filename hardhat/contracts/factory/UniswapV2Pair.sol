@@ -48,7 +48,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     }
 
     function _safeTransfer(address token, address to, uint value) private {
-        //调用transfer方法，把地址token中的value个代币转账给to
+        //调用transfer方法，把合约账户的value个代币转账给to
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
         //检查返回值，必须成功否则报错
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
@@ -167,7 +167,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         emit Mint(msg.sender, amount0, amount1);
     }
 
-    // 销毁
+    // 销毁，即销毁合约中拥有的所有流动性LP，对应的token0和token1转移至to账户
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external lock returns (uint amount0, uint amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
@@ -199,6 +199,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         emit Burn(msg.sender, amount0, amount1, to);
     }
 
+
+
+
     // swap
     // this low-level function should be called from a contract which performs important safety checks
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
@@ -210,10 +213,10 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint balance1;
         //一对大括号,为了限制 _token{0,1} 这两个临时变量的作用域，防止堆栈太深导致错误。
         { // scope for _token{0,1}, avoids stack too deep errors
-        address _token0 = token0;
+        address _token0 = token0; //两种token合约地址
         address _token1 = token1;
         require(to != _token0 && to != _token1, 'UniswapV2: INVALID_TO');
-        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
+        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens 有最后一个条件限制x*y=k，不可能让你随意转出。balance0Adjusted
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
         if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);  //to地址实现了uniswapV2Call才能用，如闪电贷
         balance0 = IERC20(_token0).balanceOf(address(this));
@@ -224,9 +227,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));  //减去手续费的数额
+        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));  //减去手续费的数额，手续费是池子剩余余额的0.3%
         uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
-        require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
+        require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K'); //x*y=k，交易后的k要不小于交易前的k
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);
