@@ -157,6 +157,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
             //如果不是首次创建流动性，而是后续陆续的添加，则按照token的新增数据占目前余额的比值，计算对应的新增流动性。注意这里是取最小值，所以LP 提供者一定要按照比例添加流动性，不然就亏了。
             liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
         }
+        // 需要注意，liquidity中已经包含了奖励的手续费
         require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
         //铸币，修改to的token数量及totalsupply
         _mint(to, liquidity);
@@ -222,7 +223,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         balance0 = IERC20(_token0).balanceOf(address(this));
         balance1 = IERC20(_token1).balanceOf(address(this));
         }
-        //amount0In和amount1In表示uniswap合约地址中，两种token余额
+        //amount0In和amount1In表示uniswap合约地址中，两种token余额。也就是说，如果balance大于_reserve0(可能是外部转入给合约的)，则也会被囊入到流动性中，
+        //正常情况下，balance始终等于reserve，除非有人给合约账户通过直接转账追加了流动性
         uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
