@@ -1,5 +1,9 @@
 # uniswap-v2
 基于hardhat框架管理和发布uniswap v2
+建议结合本文来深入了解源码：
+1. [uniswap-v2实现过程分析](http://www.wjblog.top/articles/e04fabc2/) 
+2. [uniswap-v2部署过程](http://www.wjblog.top/articles/3b89cd2c/) 
+
 
 ## 目录说明
 etherscan：存放整合后的合约，etherscan网站验证合约需要
