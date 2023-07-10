@@ -323,6 +323,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
         //防止溢出
         require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
+        // 时间戳是uint256,只需要保留最低的32位即可，但不可直接强转。
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
         // 当前块时间与池子最后更新时间的时间差
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
