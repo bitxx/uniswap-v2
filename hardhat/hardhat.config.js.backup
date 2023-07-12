@@ -5,8 +5,8 @@ require("@nomicfoundation/hardhat-toolbox");
 // testing the frontend.
 // require("./tasks/faucet");
 
-const ALCHEMY_API_KEY = "";
-const GOERLI_PRIVATE_KEY = "";
+const INFURA_API_KEY = "";
+const GOERLI_PRIVATE_KEY = "";  //evm account's private key
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
       chainId: 1337 // We set 1337 to make interacting with MetaMask simpler
     },
     goerli: {
-      url: `https://goerli.infura.io/v3/${ALCHEMY_API_KEY}`,
+      url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
       chainId: 5,
       allowUnlimitedContractSize: true,
       accounts: [GOERLI_PRIVATE_KEY]
