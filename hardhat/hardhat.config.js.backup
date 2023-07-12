@@ -6,7 +6,7 @@ require("@nomicfoundation/hardhat-toolbox");
 // require("./tasks/faucet");
 
 const INFURA_API_KEY = "";
-const GOERLI_PRIVATE_KEY = "";  //evm account's private key
+const ACCOUNT_PRIVATE_KEY = "";  //evm account's private key
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -38,7 +38,7 @@ module.exports = {
       url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
       chainId: 5,
       allowUnlimitedContractSize: true,
-      accounts: [GOERLI_PRIVATE_KEY]
+      accounts: [ACCOUNT_PRIVATE_KEY]
     }
   },
   gasReporter: {
